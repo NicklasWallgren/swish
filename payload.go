@@ -38,7 +38,7 @@ type PaymentPayload struct {
 	Currency string `json:"currency"` // validate
 	// Merchant supplied message about the payment/order. Max 50 characters.
 	// Allowed characters are the letters a-ö, A-Ö, the numbers 0-9 and any of the special characters :;.,?!()-”.
-	Message string `json:"message,omitempty" // validate`
+	Message string `json:"message,omitempty"` // validate`
 }
 
 type RefundPayload struct {

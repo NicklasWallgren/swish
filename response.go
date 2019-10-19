@@ -99,7 +99,7 @@ func (RefundResultResponse) Decode(response *http.Response, swish *Swish) (Respo
 type ErrorResponse []Error
 
 type Error struct {
-	Code                  string `json:"ErrorCode""`
+	Code                  string `json:"ErrorCode"`
 	Message               string `json:"ErrorMessage"`
 	AdditionalInformation string `json:"additionalInformation"`
 }
