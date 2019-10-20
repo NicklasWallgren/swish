@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd "$(dirname $0)"
-DIRS=". configuration"
+DIRS="."
 set -e
 for subdir in $DIRS; do
   pushd $subdir
