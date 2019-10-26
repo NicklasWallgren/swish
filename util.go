@@ -23,21 +23,22 @@ func getHttpHeaderValue(header string, response *http.Response) string {
 	return response.Header.Get(header)
 }
 
-func getGroupsFromRegExp(subject string, expression string) (paramsMap map[string]string) {
+func getGroupsFromRegExp(subject string, expression string) map[string]string {
 	var compRegEx = regexp.MustCompile(expression)
 	match := compRegEx.FindStringSubmatch(subject)
 
-	paramsMap = make(map[string]string)
+	paramsMap := make(map[string]string)
 	for i, name := range compRegEx.SubexpNames() {
 		if i > 0 && i <= len(match) {
 			paramsMap[name] = match[i]
 		}
 	}
-	return
+
+	return paramsMap
 }
 
 func getIdFromLocation(location string) (string, error) {
-	expression := "paymentrequests/(?P<Id>.*)"
+	expression := "(paymentrequests|refunds)/(?P<Id>.*)"
 
 	groups := getGroupsFromRegExp(location, expression)
 

@@ -3,6 +3,7 @@ package swish
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -15,6 +16,7 @@ type Response interface {
 	Decode(response *http.Response, swish *Swish) (Response, error)
 }
 
+// PaymentResponse holds the information of a initiated payment request
 type PaymentResponse struct {
 	// Used as reference to this order when the client is started automatically.
 	Id string
@@ -29,6 +31,7 @@ func (p *PaymentResponse) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// Decode reads the http response and stories it in a payment response struct
 func (p *PaymentResponse) Decode(response *http.Response, swish *Swish) (Response, error) {
 	if location := getHttpHeaderValue(location, response); len(location) > 0 {
 		id, _ := getIdFromLocation(location)
@@ -44,56 +47,66 @@ func (p *PaymentResponse) Decode(response *http.Response, swish *Swish) (Respons
 	return p, nil
 }
 
+// PaymentResponse holds the information of a initiated payment result request
 type PaymentResultResponse struct {
-	Id                    string  `json:"id"`                    // id
-	PayeePaymentReference string  `json:"payeePaymentReference"` // payeePaymentReference
-	PaymentReference      string  `json:"paymentReference"`      // paymentReference
-	CallbackUrl           string  `json:"callbackUrl"`           // callbackUrl
-	PayerAlias            string  `json:"payerAlias"`            // payerAlias
-	PayeeAlias            string  `json:"payeeAlias"`            // payeeAlias
-	Amount                float32 `json:"amount"`                // amount
-	Currency              string  `json:"currency"`              // currency
-	Message               string  `json:"message"`               // message
-	Status                string  `json:"status"`                // status
-	DateCreated           string  `json:"dateCreated"`           // dateCreated
-	DatePaid              string  `json:"datePaid"`              // datePaid
-	ErrorCode             string  `json:"errorCode"`             // errorCode
-	ErrorMessage          string  `json:"errorMessage"`          // errorMessage
+	Id                    string  `json:"id"`
+	PayeePaymentReference string  `json:"payeePaymentReference"`
+	PaymentReference      string  `json:"paymentReference"`
+	CallbackUrl           string  `json:"callbackUrl"`
+	PayerAlias            string  `json:"payerAlias"`
+	PayeeAlias            string  `json:"payeeAlias"`
+	Amount                float32 `json:"amount"`
+	Currency              string  `json:"currency"`
+	Message               string  `json:"message"`
+	Status                string  `json:"status"`
+	DateCreated           string  `json:"dateCreated"`
+	DatePaid              string  `json:"datePaid"`
+	ErrorCode             string  `json:"errorCode"`
+	ErrorMessage          string  `json:"errorMessage"`
 }
 
 func (p *PaymentResultResponse) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
+// Decode reads the JSON-encoded response and stories it in a payment result response struct
 func (p *PaymentResultResponse) Decode(response *http.Response, swish *Swish) (Response, error) {
-	decoder := json.NewDecoder(response.Body)
-	decoder.DisallowUnknownFields()
-
-	err := decoder.Decode(&p)
-
-	return p, err
+	return p, decode(response.Body, p)
 }
 
 type RefundResponse struct {
+	// Used as reference to this order when the client is started automatically.
+	Id string
+	// Used to collect the status of the refund.
+	Url   string
+	swish *Swish
 }
 
-func (RefundResponse) String() string {
-	panic("implement me")
+func (r RefundResponse) String() string {
+	return fmt.Sprintf("%#v", r)
 }
 
-func (RefundResponse) Decode(response *http.Response, swish *Swish) (Response, error) {
-	panic("implement me")
+func (r *RefundResponse) Decode(response *http.Response, swish *Swish) (Response, error) {
+	if location := getHttpHeaderValue(location, response); len(location) > 0 {
+		id, _ := getIdFromLocation(location)
+
+		r.Id = id
+		r.Url = location
+	}
+
+	return r, nil
 }
 
 type RefundResultResponse struct {
+
 }
 
-func (RefundResultResponse) String() string {
-	panic("implement me")
+func (r RefundResultResponse) String() string {
+	return fmt.Sprintf("%#v", r)
 }
 
-func (RefundResultResponse) Decode(response *http.Response, swish *Swish) (Response, error) {
-	panic("implement me")
+func (r *RefundResultResponse) Decode(response *http.Response, swish *Swish) (Response, error) {
+	return r, decode(response.Body, r)
 }
 
 type ErrorResponse []Error
@@ -108,11 +121,14 @@ func (e ErrorResponse) Error() string {
 	return fmt.Sprintf("%#v", e)
 }
 
+// Decode reads the JSON-encoded value and stories it in a error response struct
 func (e *ErrorResponse) Decode(response *http.Response, swish *Swish) (Response, error) {
-	decoder := json.NewDecoder(response.Body)
+	return e, decode(response.Body, e)
+}
+
+func decode(subject io.ReadCloser, target interface{}) error {
+	decoder := json.NewDecoder(subject)
 	decoder.DisallowUnknownFields()
 
-	err := decoder.Decode(&e)
-
-	return e, err
+	return decoder.Decode(&target)
 }

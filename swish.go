@@ -95,10 +95,9 @@ func (s Swish) call(ctx context.Context, request Request) (*Response, error) {
 	context, cancel := context.WithTimeout(ctx, s.configuration.Timeout*time.Second)
 	defer cancel()
 
-	// Validate the integrity of the call
-	//if err := s.validator.Struct(request.Payload()); err != nil {
-	//	return nil, err
-	//}
+	if err := s.validate(request); err != nil {
+		return nil, nil
+	}
 
 	if err := s.initialize(); err != nil {
 		return nil, err
@@ -113,21 +112,34 @@ func (s Swish) call(ctx context.Context, request Request) (*Response, error) {
 	return response, nil
 }
 
+func (s Swish) validate(request Request) error {
+	if request.Payload() == nil {
+		return nil
+	}
+
+	// Validate the integrity of the payload
+	if err := s.validator.Struct(request.Payload()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // initialize prepares the client in head of a request
-func (b *Swish) initialize() error {
+func (s *Swish) initialize() error {
 	// Check whether the client has been initialized
-	if b.client != nil {
+	if s.client != nil {
 		return nil
 	}
 
 	// Lazy initialization
-	client, err := newClient(b.configuration)
+	client, err := newClient(s.configuration)
 
 	if err != nil {
 		return err
 	}
 
-	b.client = &client
+	s.client = &client
 
 	return nil
 }

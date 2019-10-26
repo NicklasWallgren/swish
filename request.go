@@ -35,18 +35,18 @@ func (r request) Response() Response {
 	return r.response
 }
 
-func newPaymentRequest(payload *PaymentPayload) request {
-	return request{method: "POST", uri: uriPayment, payload: &payload, response: &PaymentResponse{}}
+func newPaymentRequest(payload *PaymentPayload) Request {
+	return &request{method: "POST", uri: uriPayment, payload: payload, response: &PaymentResponse{}}
 }
 
-func newPaymentResultRequest(token string) request {
-	return request{method: "GET", uri: uriPayment + "/" + token, response: &PaymentResultResponse{}}
+func newPaymentResultRequest(token string) Request {
+	return &request{method: "GET", uri: uriPayment + "/" + token, response: &PaymentResultResponse{}}
 }
 
-func newRefundRequest(payload *RefundPayload) request {
-	return request{method: "POST", uri: uriRefund, payload: &payload, response: &PaymentResponse{}}
+func newRefundRequest(payload *RefundPayload) Request {
+	return &request{method: "POST", uri: uriRefund, payload: payload, response: &RefundResponse{}}
 }
 
-func newRefundResultRequest(token string) request {
-	return request{method: "GET", uri: uriRefund + "/" + token, response: &RefundResultResponse{}}
+func newRefundResultRequest(token string) Request {
+	return &request{method: "GET", uri: uriRefund + "/" + token, response: &RefundResultResponse{}}
 }

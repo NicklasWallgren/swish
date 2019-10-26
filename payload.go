@@ -8,6 +8,7 @@ type payload struct {
 	payloadInterface
 }
 
+// PaymentPayload holds the required and optional fields of the payment request
 type PaymentPayload struct {
 	*payload
 	// Payment reference supplied by theMerchant. This is not used by Swish but is included in responses back to the
@@ -41,6 +42,26 @@ type PaymentPayload struct {
 	Message string `json:"message,omitempty"` // validate`
 }
 
+// RefundPayload holds the required and optional fields of the refund request
 type RefundPayload struct {
 	*payload
+	// Payment reference supplied by the Merchant. This is not used by Swish but is included in responses back to the client.
+	PayerPaymentReference string `json:"payerPaymentReference,omitempty"`
+	// Payment reference to the original payment that this refund is for.
+	OriginalPaymentReference string `json:"originalPaymentReference"` // validate
+	// URL that Swish will use to notify caller about the outcome of the refund. The URL has to use HTTPS.
+	CallbackUrl string `json:"callbackUrl"` // validate
+	// The Swish number of the Merchant that makes the refund payment.
+	PayerAlias string `json:"payerAlias"` // validate
+	// The Cell phone number of the person that receives the refund payment.
+	PayeeAlias string `json:"payeeAlias,omitempty"` // validate
+	// The amount of money to refund.
+	// The amount cannot be less than 1 SEK and not more than
+	// Moreover, the amount cannot exceed the remaining amount of the original payment that the refund is for.
+	Amount string `json:"amount"` // validate
+	// The currency to use.
+	Currency string `json:"currency"` // validate
+	// Merchant supplied message about the refund. Max 50 chars.
+	// Allowed characters are the letters a-ö, A-Ö, the numbers 0-9 and any of the special characters :;.,?!()-”.
+	Message string `json:"message,omitempty"` // validate
 }
