@@ -75,7 +75,6 @@ func (s Swish) Refund(ctx context.Context, payload *RefundPayload) (*RefundRespo
 
 	refundResponse := (*response).(*RefundResponse)
 	return refundResponse, nil
-
 }
 
 // RefundResult - Retrieves the refund result
@@ -87,8 +86,17 @@ func (s Swish) Refund(ctx context.Context, payload *RefundPayload) (*RefundRespo
 //
 // MSS stores the necessary information about each incoming “Refund request” in a cache which automatically expires
 // every 24 hours or when the MSS server is restarted.
-func (s Swish) RefundResult(ctx *context.Context, token string) (*RefundResponse, error) {
-	return nil, nil
+func (s Swish) RefundResult(ctx context.Context, token string) (*RefundResultResponse, error) {
+	request := newRefundResultRequest(token)
+
+	response, err := s.call(ctx, request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	refundResultResponse := (*response).(*RefundResultResponse)
+	return refundResultResponse, nil
 }
 
 func (s Swish) call(ctx context.Context, request Request) (*Response, error) {

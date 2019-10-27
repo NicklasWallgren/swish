@@ -34,11 +34,13 @@ func (c client) call(request Request, context *context.Context, swish *Swish) (*
 	}
 
 	req, err := c.newRequest(request.Method(), c.composeUrl(request), strings.NewReader(string(encoded)))
+
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := c.request(req.WithContext(*context))
+
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +48,6 @@ func (c client) call(request Request, context *context.Context, swish *Swish) (*
 	defer resp.Body.Close()
 
 	return c.decoder.decode(request.Response(), resp, swish)
-
 }
 
 // ConfigurationOption definition

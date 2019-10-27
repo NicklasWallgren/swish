@@ -98,7 +98,22 @@ func (r *RefundResponse) Decode(response *http.Response, swish *Swish) (Response
 }
 
 type RefundResultResponse struct {
-
+	Id                       string  `json:"id"`
+	PaymentReference         string  `json:"paymentReference"`
+	PayerPaymentReference    string  `json:"payerPaymentReference"`
+	OriginalPaymentReference string  `json:"originalPaymentReference"`
+	CallbackUrl              string  `json:"callbackUrl"`
+	PayerAlias               string  `json:"payerAlias"`
+	PayeeAlias               string  `json:"payeeAlias"`
+	Amount                   float32 `json:"amount"`
+	Currency                 string  `json:"currency"`
+	Message                  string  `json:"message"`
+	Status                   string  `json:"status"`
+	DateCreated              string  `json:"dateCreated"`
+	DatePaid                 string  `json:"datePaid"`
+	ErrorMessage             string  `json:"errorMessage"`
+	AdditionalInformation    string  `json:"additionalInformation"`
+	ErrorCode                string  `json:"errorCode"`
 }
 
 func (r RefundResultResponse) String() string {

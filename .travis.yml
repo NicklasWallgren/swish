@@ -15,5 +15,5 @@ matrix:
   script:
     - ./.travis.gofmt.sh
     - ./.travis.govet.sh
-    - go test -v -race $(go list ./... | grep -v vendor)
+    - go test -v -race $(go list ./... | grep -v examples)
     - $GOPATH/bin/goveralls -service=travis-ci

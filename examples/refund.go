@@ -24,6 +24,7 @@ func main() {
 		Message:                  "Refund",
 	}
 
+	// Initiates a refund request.
 	refundResponse, err := instance.Refund(context.Background(), &refundPayload)
 
 	if err != nil {
@@ -33,4 +34,15 @@ func main() {
 	}
 
 	fmt.Println(refundResponse)
+
+	// Retrieves the refund result
+	refundResultResponse, err := instance.RefundResult(context.Background(), refundResponse.Id)
+
+	if err != nil {
+		fmt.Println(err)
+
+		return
+	}
+
+	fmt.Println(refundResultResponse)
 }

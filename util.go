@@ -1,19 +1,12 @@
 package swish
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"regexp"
 )
-
-func isValidHttpResponse(statusCode int, httpStatusCodes []int) bool {
-	for _, validStatusCode := range httpStatusCodes {
-		if statusCode == validStatusCode {
-			return true
-		}
-	}
-	return false
-}
 
 func isHttpStatusCodeWithinRange(statusCode int, statusCodeRange statusCodeRange) bool {
 	return statusCode >= statusCodeRange.start && statusCode <= statusCodeRange.end
@@ -47,4 +40,12 @@ func getIdFromLocation(location string) (string, error) {
 	}
 
 	return "", fmt.Errorf("could not derive order id from location header. Location: %s", location)
+}
+
+func readerToString(reader io.Reader) string {
+	buf := new(bytes.Buffer)
+
+	buf.ReadFrom(reader)
+
+	return buf.String()
 }

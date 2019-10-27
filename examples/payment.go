@@ -22,6 +22,7 @@ func main() {
 		Amount:                "100",
 		Currency:              "SEK"}
 
+	// Initiates a payment request
 	paymentResponse, err := instance.Payment(context.Background(), &payload)
 
 	if err != nil {
@@ -30,6 +31,7 @@ func main() {
 		return
 	}
 
+	// Retrieves the payment result
 	paymentResult, err := instance.PaymentResult(context.Background(), paymentResponse.Id)
 
 	if err != nil {

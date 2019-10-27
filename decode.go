@@ -7,7 +7,6 @@ import (
 
 var (
 	successRange = statusCodeRange{200, 300 - 1}
-	errorRange   = statusCodeRange{400, 600 - 1}
 )
 
 type Decoder interface {
@@ -27,13 +26,7 @@ func (j jsonDecoder) decode(subject Response, response *http.Response, swish *Sw
 		return &decoded, err
 	}
 
-	if isHttpStatusCodeWithinRange(response.StatusCode, errorRange) {
-		return nil, j.decodeError(response, swish)
-	}
-
-	decoded, err := subject.Decode(response, swish)
-
-	return &decoded, err
+	return nil, j.decodeError(response, swish)
 }
 
 func (j jsonDecoder) decodeError(response *http.Response, swish *Swish) error {
@@ -42,7 +35,7 @@ func (j jsonDecoder) decodeError(response *http.Response, swish *Swish) error {
 	_, err := errorResponse.Decode(response, swish)
 
 	if err != nil {
-		return xerrors.Errorf("%w. Error code %d. Response: %s", err, response.StatusCode, response.Body)
+		return xerrors.Errorf("%w. Error code %d. Response: %s", err, response.StatusCode, readerToString(response.Body))
 	}
 
 	return &errorResponse
