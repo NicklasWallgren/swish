@@ -1,19 +1,23 @@
-language: go
+dist: trusty
 
-sudo: false
+sudo: required
 
-before_install:
-  - go get github.com/mattn/goveralls
+language: minimal
 
 matrix:
   include:
-    - go: "1.13.x"
-      env: GO111MODULE=on
-    - go: "1.12.x"
-      env: GO111MODULE=on
-    - go: tip
-  script:
-    - ./.travis.gofmt.sh
-    - ./.travis.govet.sh
-    - go test -v -race $(go list ./... | grep -v examples)
-    - $GOPATH/bin/goveralls -service=travis-ci
+    - env: GO_VERSION=1.12
+    - env: GO_VERSION=1.13
+    - env: GO_VERSION=$(gimme --known | sort -V | tail -1)
+
+before_install:
+  eval "$(gimme ${GO_VERSION})"
+
+script:
+  - export GO111MODULE=on
+  - go get -t -v $(go list ./... | grep -v examples)
+  - ./.travis.gofmt.sh
+  - ./.travis.govet.sh
+  - go get github.com/mattn/goveralls
+  - go test -v -race $(go list ./... | grep -v examples)
+  - $GOPATH/bin/goveralls -service=travis-ci -package=$(go list ./... | grep -v examples)
