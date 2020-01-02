@@ -33,7 +33,7 @@ func (s Swish) Payment(ctx context.Context, payload *PaymentPayload) (*PaymentRe
 		return nil, err
 	}
 
-	paymentResponse := (*response).(*PaymentResponse)
+	paymentResponse := (response).(*PaymentResponse)
 	return paymentResponse, nil
 }
 
@@ -54,7 +54,7 @@ func (s Swish) PaymentResult(ctx context.Context, token string) (*PaymentResultR
 		return nil, err
 	}
 
-	paymentResultResponse := (*response).(*PaymentResultResponse)
+	paymentResultResponse := (response).(*PaymentResultResponse)
 	return paymentResultResponse, nil
 }
 
@@ -73,7 +73,7 @@ func (s Swish) Refund(ctx context.Context, payload *RefundPayload) (*RefundRespo
 		return nil, err
 	}
 
-	refundResponse := (*response).(*RefundResponse)
+	refundResponse := (response).(*RefundResponse)
 	return refundResponse, nil
 }
 
@@ -95,11 +95,11 @@ func (s Swish) RefundResult(ctx context.Context, token string) (*RefundResultRes
 		return nil, err
 	}
 
-	refundResultResponse := (*response).(*RefundResultResponse)
+	refundResultResponse := (response).(*RefundResultResponse)
 	return refundResultResponse, nil
 }
 
-func (s Swish) call(ctx context.Context, request Request) (*Response, error) {
+func (s Swish) call(ctx context.Context, request Request) (Response, error) {
 	context, cancel := context.WithTimeout(ctx, s.configuration.Timeout*time.Second)
 	defer cancel()
 
@@ -111,7 +111,7 @@ func (s Swish) call(ctx context.Context, request Request) (*Response, error) {
 		return nil, err
 	}
 
-	response, err := (*s.client).call(request, &context, &s)
+	response, err := (*s.client).call(request, context, &s)
 
 	if err != nil {
 		return nil, err

@@ -10,7 +10,7 @@ var (
 )
 
 type Decoder interface {
-	decode(subject Response, response *http.Response, swish *Swish) (*Response, error)
+	decode(subject Response, response *http.Response, swish *Swish) (Response, error)
 }
 
 type jsonDecoder struct{}
@@ -19,11 +19,11 @@ func newJsonDecoder() Decoder {
 	return &jsonDecoder{}
 }
 
-func (j jsonDecoder) decode(subject Response, response *http.Response, swish *Swish) (*Response, error) {
+func (j jsonDecoder) decode(subject Response, response *http.Response, swish *Swish) (Response, error) {
 	if isHttpStatusCodeWithinRange(response.StatusCode, successRange) {
 		decoded, err := subject.Decode(response, swish)
 
-		return &decoded, err
+		return decoded, err
 	}
 
 	return nil, j.decodeError(response, swish)
