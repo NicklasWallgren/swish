@@ -1,4 +1,4 @@
-module swish
+module github.com/NicklasWallgren/swish
 
 go 1.12
 
