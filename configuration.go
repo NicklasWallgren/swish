@@ -1,27 +1,31 @@
 package swish
 
-import (
-	"errors"
-	"fmt"
-	"path"
-	"runtime"
-	"time"
-)
-
+// Environment contains the environment specific fields.
 type Environment struct {
-	BaseUrl               string
-	CertificationFilePath string
+	BaseURL     string
+	Certificate string
 }
 
+// NewEnvironment creates a new environment.
+func NewEnvironment(baseURL string, certificate string) *Environment {
+	return &Environment{baseURL, certificate}
+}
+
+// Pkcs12 contains the PKCS12 specific fields.
+type Pkcs12 struct {
+	Content  []byte
+	Password string
+}
+
+// Configuration contains the configuration specific fields.
 type Configuration struct {
 	Environment *Environment
-	CertFile    string
-	KeyFile     string
-	Timeout     time.Duration
+	Pkcs12      *Pkcs12
 }
 
-func NewConfiguration(environment *Environment, certFile string, keyFile string, options ...ConfigurationOption) *Configuration {
-	instance := &Configuration{Environment: environment, CertFile: certFile, KeyFile: keyFile, Timeout: 60}
+// NewConfiguration creates a new configuration.
+func NewConfiguration(environment *Environment, pkcs12 *Pkcs12, options ...ConfigurationOption) *Configuration {
+	instance := &Configuration{Environment: environment, Pkcs12: pkcs12}
 
 	// Apply options if there are any, can overwrite default
 	for _, option := range options {
@@ -31,37 +35,16 @@ func NewConfiguration(environment *Environment, certFile string, keyFile string,
 	return instance
 }
 
-// ConfigurationOption definition
+// ConfigurationOption definition.
 type ConfigurationOption func(*Configuration)
 
-// Function to create ConfigurationOption func to set the timeout limit
-func setTimeout(timeout time.Duration) ConfigurationOption {
-	return func(subject *Configuration) {
-		subject.Timeout = timeout
-	}
-}
-
 var (
-	TestEnvironment       = Environment{BaseUrl: "https://mss.cpc.getswish.net/swish-cpcapi/api/v1", CertificationFilePath: GetResourcePath("certificates/ca.test.crt")}
-	ProductionEnvironment = Environment{BaseUrl: "https://mss.cpc.getswish.net/swish-cpcapi/api/v1", CertificationFilePath: GetResourcePath("certificates/ca.prod.crt")}
+	// TestEnvironment contains the environment specific fields for the test environment.
+	TestEnvironment = Environment{BaseURL: "https://mss.cpc.getswish.net/swish-cpcapi/api/v1", Certificate: certificate}
+	// ProductionEnvironment contains the environment specific fields for the production environment.
+	ProductionEnvironment = Environment{BaseURL: "https://cpc.getswish.net/swish-cpcapi/api/v1", Certificate: certificate}
 )
 
-func GetResourceDirectoryPath() (directory string, err error) {
-	_, filename, _, ok := runtime.Caller(0)
-
-	if !ok {
-		return "", errors.New("could not derive directory path")
-	}
-
-	return fmt.Sprintf("%s/%s", path.Dir(filename), "./resource"), nil
-}
-
-func GetResourcePath(path string) (directory string) {
-	dir, err := GetResourceDirectoryPath()
-
-	if err != nil {
-		panic(err)
-	}
-
-	return fmt.Sprintf("%s/%s", dir, path)
-}
+const (
+	certificate = "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tDQpNSUlEcnpDQ0FwZWdBd0lCQWdJUUNEdmdWcEJDUnJHaGRXckpXWkhIU2pBTkJna3Foa2lHOXcwQkFRVUZBREJoDQpNUXN3Q1FZRFZRUUdFd0pWVXpFVk1CTUdBMVVFQ2hNTVJHbG5hVU5sY25RZ1NXNWpNUmt3RndZRFZRUUxFeEIzDQpkM2N1WkdsbmFXTmxjblF1WTI5dE1TQXdIZ1lEVlFRREV4ZEVhV2RwUTJWeWRDQkhiRzlpWVd3Z1VtOXZkQ0JEDQpRVEFlRncwd05qRXhNVEF3TURBd01EQmFGdzB6TVRFeE1UQXdNREF3TURCYU1HRXhDekFKQmdOVkJBWVRBbFZUDQpNUlV3RXdZRFZRUUtFd3hFYVdkcFEyVnlkQ0JKYm1NeEdUQVhCZ05WQkFzVEVIZDNkeTVrYVdkcFkyVnlkQzVqDQpiMjB4SURBZUJnTlZCQU1URjBScFoybERaWEowSUVkc2IySmhiQ0JTYjI5MElFTkJNSUlCSWpBTkJna3Foa2lHDQo5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBNGp2aEVYTGVxS1RUbzFlcVVLS1BDM2VReWFLbDdoTE9sbHNCDQpDU0RNQVpPblRqQzNVL2REeEdrQVY1M2lqU0xkaHdaQUFJRUp6czRiZzcvZnpUdHhSdUxXWnNjRnMzWW5Gbzk3DQpuaDZWZmU2M1NLTUkydGF2ZWd3NUJtVi9TbDBmdkJmNHE3N3VLTmQwZjNwNG1WbUZhRzVjSXpKTHYwN0E2RnB0DQo0M0MvZHhDLy9BSDJoZG1vUkJCWU1xbDFHTlhSb3I1SDRpZHE5Sm96K0VrSVlJdlVYN1E2aEwraHFrcE1mVDdQDQpUMTlzZGw2Z1N6ZVJudHdpNW0zT0ZCcU9hc3YremJNVVpCZkhXeW1lTXIveTd2clRDMExVcTdkQk10b00xTy80DQpnZFc3alZnL3RSdm9TU2lpY05veEJOMzNzaGJ5VEFwT0I2anRTajFldFgramtNT3ZKd0lEQVFBQm8yTXdZVEFPDQpCZ05WSFE4QkFmOEVCQU1DQVlZd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVUE5NVFOVmJSDQpUTHRtOEtQaUd4dkRsN0k5MFZVd0h3WURWUjBqQkJnd0ZvQVVBOTVRTlZiUlRMdG04S1BpR3h2RGw3STkwVlV3DQpEUVlKS29aSWh2Y05BUUVGQlFBRGdnRUJBTXVjTjZwSUV4SUsrdDFFbkU5U3NQVGZyZ1QxZVhrSW95UVkvRXNyDQpoTUF0dWRYSC92VEJIMWpMdUcyY2VuVG5tQ21yRWJYamNLQ2h6VXlJbVpPTWtYRGlxdzhjdnBPcC8yUFY1QWRnDQowNk8vblZzSjhkV080MVAwam1QNlA2ZmJ0R2JmWW1iVzBXNUJqZkl0dGVwM1NwK2RXT0lyV2NCQUkrMHRLSUpGDQpQbmxVa2lhWTRJQklxRGZ2OE5aNVlCYmVyT2dPelc2c1JCYzRMMG5hNFVVK0tyazJVODg2VUFiM0x1akVWMGxzDQpZU0VZMVFTdGVEd3NPb0JycCt1dkZSVHAySW5CdVRoczRwRnNpdjlrdVhjbFZ6REFHeVNqNGR6cDMwZDh0YlFrDQpDQVV3N0MyOUM3OUZ2MUM1cWZQcm1BRVNyY2lJeHBnMFg0MEtQTWJwMVpXVmJkND0NCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0NCg=="
+)

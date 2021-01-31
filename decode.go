@@ -1,29 +1,30 @@
 package swish
 
 import (
-	"golang.org/x/xerrors"
+	"fmt"
 	"net/http"
 )
 
-var (
-	successRange = statusCodeRange{200, 300 - 1}
-)
+var successRange = statusCodeRange{200, 300 - 1}
 
-type Decoder interface {
+type decoder interface {
 	decode(subject Response, response *http.Response, swish *Swish) (Response, error)
 }
 
 type jsonDecoder struct{}
 
-func newJsonDecoder() Decoder {
+func newJSONDecoder() decoder {
 	return &jsonDecoder{}
 }
 
 func (j jsonDecoder) decode(subject Response, response *http.Response, swish *Swish) (Response, error) {
-	if isHttpStatusCodeWithinRange(response.StatusCode, successRange) {
+	if isHTTPStatusCodeWithinRange(response.StatusCode, successRange) {
 		decoded, err := subject.Decode(response, swish)
+		if err != nil {
+			return nil, fmt.Errorf("unable to decode response %w", err)
+		}
 
-		return decoded, err
+		return decoded, nil
 	}
 
 	return nil, j.decodeError(response, swish)
@@ -33,9 +34,8 @@ func (j jsonDecoder) decodeError(response *http.Response, swish *Swish) error {
 	errorResponse := ErrorResponse{}
 
 	_, err := errorResponse.Decode(response, swish)
-
 	if err != nil {
-		return xerrors.Errorf("%w. Error code %d. Response: %s", err, response.StatusCode, readerToString(response.Body))
+		return fmt.Errorf("%w. Error code %d. Response: %s", err, response.StatusCode, tryReadCloserToString(response.Body))
 	}
 
 	return &errorResponse
