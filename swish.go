@@ -2,18 +2,19 @@ package swish
 
 import (
 	"context"
+	"fmt"
+
 	"gopkg.in/go-playground/validator.v9"
-	"time"
 )
 
-// Swish contains the validator and configuration context
+// Swish contains the validator and configuration context.
 type Swish struct {
 	validator     *validator.Validate
 	configuration *Configuration
-	client        *Client
+	client        Client
 }
 
-// New returns a new instance of 'Swish'
+// New returns a new instance of 'Swish'.
 func New(configuration *Configuration) Swish {
 	return Swish{validator: newValidator(), configuration: configuration}
 }
@@ -28,7 +29,6 @@ func (s Swish) Payment(ctx context.Context, payload *PaymentPayload) (*PaymentRe
 	request := newPaymentRequest(payload)
 
 	response, err := s.call(ctx, request)
-
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,6 @@ func (s Swish) PaymentResult(ctx context.Context, token string) (*PaymentResultR
 	request := newPaymentResultRequest(token)
 
 	response, err := s.call(ctx, request)
-
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +67,6 @@ func (s Swish) Refund(ctx context.Context, payload *RefundPayload) (*RefundRespo
 	request := newRefundRequest(payload)
 
 	response, err := s.call(ctx, request)
-
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +88,6 @@ func (s Swish) RefundResult(ctx context.Context, token string) (*RefundResultRes
 	request := newRefundResultRequest(token)
 
 	response, err := s.call(ctx, request)
-
 	if err != nil {
 		return nil, err
 	}
@@ -100,9 +97,6 @@ func (s Swish) RefundResult(ctx context.Context, token string) (*RefundResultRes
 }
 
 func (s Swish) call(ctx context.Context, request Request) (Response, error) {
-	context, cancel := context.WithTimeout(ctx, s.configuration.Timeout*time.Second)
-	defer cancel()
-
 	if err := s.validate(request); err != nil {
 		return nil, nil
 	}
@@ -111,13 +105,7 @@ func (s Swish) call(ctx context.Context, request Request) (Response, error) {
 		return nil, err
 	}
 
-	response, err := (*s.client).call(request, context, &s)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
+	return (s.client).call(ctx, request, &s)
 }
 
 func (s Swish) validate(request Request) error {
@@ -127,13 +115,13 @@ func (s Swish) validate(request Request) error {
 
 	// Validate the integrity of the payload
 	if err := s.validator.Struct(request.Payload()); err != nil {
-		return err
+		return fmt.Errorf("payload validation error %w", err)
 	}
 
 	return nil
 }
 
-// initialize prepares the client in head of a request
+// initialize prepares the client in head of a request.
 func (s *Swish) initialize() error {
 	// Check whether the client has been initialized
 	if s.client != nil {
@@ -142,12 +130,11 @@ func (s *Swish) initialize() error {
 
 	// Lazy initialization
 	client, err := newClient(s.configuration)
-
 	if err != nil {
 		return err
 	}
 
-	s.client = &client
+	s.client = client
 
 	return nil
 }

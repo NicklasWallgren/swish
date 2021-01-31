@@ -5,17 +5,18 @@ const (
 	uriRefund  = "refunds"
 )
 
+// Request is the interface implemented by types that holds the request context fields.
 type Request interface {
 	Method() string
-	Uri() string
-	Payload() payloadInterface
+	URI() string
+	Payload() payload
 	Response() Response
 }
 
 type request struct {
 	method   string
 	uri      string
-	payload  payloadInterface
+	payload  payload
 	response Response
 }
 
@@ -23,11 +24,11 @@ func (r request) Method() string {
 	return r.method
 }
 
-func (r request) Uri() string {
+func (r request) URI() string {
 	return r.uri
 }
 
-func (r request) Payload() payloadInterface {
+func (r request) Payload() payload {
 	return r.payload
 }
 

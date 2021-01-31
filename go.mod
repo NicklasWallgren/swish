@@ -8,7 +8,6 @@ require (
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
-	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898
 	gopkg.in/go-playground/assert.v1 v1.2.1
 	gopkg.in/go-playground/validator.v9 v9.30.0
 )

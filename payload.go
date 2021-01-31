@@ -1,22 +1,18 @@
 package swish
 
-// payloadInterface is the interface implemented by types that holds the fields to be delivered to the API
-type payloadInterface interface{}
+// payload is the interface implemented by types that holds the fields to be delivered to the API.
+type payload interface{}
 
-// payload holds the request fields to be delivered to the API
-type payload struct {
-	payloadInterface
-}
-
-// PaymentPayload holds the required and optional fields of the payment request
+// PaymentPayload holds the required and optional fields of the payment request.
 type PaymentPayload struct {
-	*payload
+	// nolint:unused
+	payload `json:"-"`
 	// Payment reference supplied by theMerchant. This is not used by Swish but is included in responses back to the
 	// client. This reference could for example be an order id or similar. If set the value must not exceed 35 characters
 	// and only the following characters are allowed: [a-ö, A-Ö, 0-9, -]
 	PayeePaymentReference string `json:"payeePaymentReference,omitempty"` // validate
 	// URL that Swish will use to notify caller about the result of the payment request. The URL has to use HTTPS.
-	CallbackUrl string `json:"callbackUrl"` // validate
+	CallbackURL string `json:"callbackUrl"` // validate
 	// The registered Cell phone number of the person that makes the payment. It can only contain numbers and has to be
 	// at least 8 and at most 15 digits. It also needs to match the following format in order to be found in
 	// Swish: country code + cell phone number (without leading zero). E.g.: 46712345678
@@ -42,15 +38,16 @@ type PaymentPayload struct {
 	Message string `json:"message,omitempty"` // validate`
 }
 
-// RefundPayload holds the required and optional fields of the refund request
+// RefundPayload holds the required and optional fields of the refund request.
 type RefundPayload struct {
-	*payload
+	// nolint:unused
+	payload `json:"-"`
 	// Payment reference supplied by the Merchant. This is not used by Swish but is included in responses back to the client.
 	PayerPaymentReference string `json:"payerPaymentReference,omitempty"`
 	// Payment reference to the original payment that this refund is for.
 	OriginalPaymentReference string `json:"originalPaymentReference"` // validate
 	// URL that Swish will use to notify caller about the outcome of the refund. The URL has to use HTTPS.
-	CallbackUrl string `json:"callbackUrl"` // validate
+	CallbackURL string `json:"callbackUrl"` // validate
 	// The Swish number of the Merchant that makes the refund payment.
 	PayerAlias string `json:"payerAlias"` // validate
 	// The Cell phone number of the person that receives the refund payment.

@@ -15,7 +15,7 @@ go get github.com/NicklasWallgren/swish
 ```
 
 # Supported versions
-We support the two major Go versions, which are 1.12 and 1.13 at the moment.
+We support the two major Go versions, which are 1.14 and 1.15 at the moment.
 
 # Features
 - Create payment request
@@ -28,14 +28,21 @@ We support the two major Go versions, which are 1.12 and 1.13 at the moment.
 ## Initiate payment request
 ```go
 import (
+    "context"
     "fmt"
+    "io/ioutil"
     "github.com/NicklasWallgren/swish"
 )
 
+certificate, err := ioutil.ReadFile("path/to/environment.p12")
+if err != nil {
+    panic(err)
+}
+
 configuration := swish.NewConfiguration(
     &swish.TestEnvironment,
-    swish.GetResourcePath("certificates/test.pem"),
-    swish.GetResourcePath("certificates/test.key"))
+    &swish.Pkcs12{Content: certificate, Password: "p12 password"},
+)
 
 instance := swish.New(configuration)
 
