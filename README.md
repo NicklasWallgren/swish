@@ -2,8 +2,9 @@
 
 Golang library for the Swish Payment and Refund Request API.
 
-[![Build Status](https://travis-ci.org/NicklasWallgren/swish.svg?branch=master)](https://travis-ci.org/NicklasWallgren/swish)
-[![Go Report Card](https://goreportcard.com/badge/github.com/stretchr/testify)](https://goreportcard.com/report/github.com/NicklasWallgren/swish)
+[![Build Status](https://github.com/NicklasWallgren/swish/workflows/Test/badge.svg)](https://github.com/NicklasWallgren/swish/actions?query=workflow%3ATest)
+[![Reviewdog](https://github.com/NicklasWallgren/bankid/workflows/reviewdog/badge.svg)](https://github.com/NicklasWallgren/bankid/actions?query=workflow%3Areviewdog)
+[![Go Report Card](https://goreportcard.com/badge/github.com/NicklasWallgren/swish)](https://goreportcard.com/report/github.com/NicklasWallgren/swish)
 [![GoDoc](https://godoc.org/github.com/NicklasWallgren/swish?status.svg)](https://godoc.org/github.com/NicklasWallgren/swish) 
 
 Check out the API Documentation http://godoc.org/github.com/NicklasWallgren/swish
@@ -49,7 +50,6 @@ instance := swish.New(configuration)
 payload := swish.PaymentPayload{PayeePaymentReference: "0123456789", CallbackUrl: "https://myfakehost.se/swishcallback.cfm", PayeeAlias: "9871065216", PayerAlias: "1231181189", Amount: "100", Currency: "SEK"}
 
 paymentResponse, err := instance.Payment(context.Background(), &payload)
-
 if err != nil {
     fmt.Println(err)
 
@@ -57,7 +57,6 @@ if err != nil {
 }
 
 paymentResult, err := instance.PaymentResult(context.Background(), paymentResponse.Id)
-
 if err != nil {
     fmt.Println(err)
 
@@ -72,19 +71,20 @@ fmt.Println(paymentResult)
 go test -v -race $(go list ./... | grep -v vendor)
 ```
 
-## TODO
- - Add unit tests
- - Add validator translator
+### Code Guide
+
+We use GitHub Actions to make sure the codebase is consistent (`golangci-lint run`) and continuously tested (`go test -v -race $(go list ./... | grep -v vendor)`). We try to keep comments at a maximum of 120 characters of length and code at 120.
 
 ## Contributing
-  - Fork it!
-  - Create your feature branch: `git checkout -b my-new-feature`
-  - Commit your changes: `git commit -am 'Useful information about your new features'`
-  - Push to the branch: `git push origin my-new-feature`
-  - Submit a pull request
+
+If you find any problems or have suggestions about this library, please submit an issue. Moreover, any pull request, code review and feedback are welcome.
 
 ## Contributors
   - [Nicklas Wallgren](https://github.com/NicklasWallgren)
   - [All Contributors][link-contributors]
 
 [link-contributors]: ../../contributors
+
+## License
+
+[MIT](./LICENSE)
